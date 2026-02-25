@@ -16,9 +16,9 @@ const RESOURCES = {"canvaskit/skwasm_heavy.js.symbols": "3c01ec03b5de6d62c34e170
 "canvaskit/skwasm.js.symbols": "0088242d10d7e7d6d2649d1fe1bda7c1",
 "canvaskit/canvaskit.js": "140ccb7d34d0a55065fbd422b843add6",
 "flutter.js": "888483df48293866f9f41d3d9274a779",
-"flutter_bootstrap.js": "ab61d80ed86ad1f32589c04baa7e114c",
-"index.html": "a2986fe6c9f252db07570f464235e28d",
-"/": "a2986fe6c9f252db07570f464235e28d",
+"flutter_bootstrap.js": "1d5b57d9a85a165c8488c6214cdd0ca4",
+"index.html": "c766e96b178860364f223f6455a3d43c",
+"/": "c766e96b178860364f223f6455a3d43c",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
 "icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
@@ -33,7 +33,7 @@ const RESOURCES = {"canvaskit/skwasm_heavy.js.symbols": "3c01ec03b5de6d62c34e170
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
 "assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c",
-"main.dart.js": "c506aa61ab507919405572186d42ef9c",
+"main.dart.js": "16c98d7789afbd9c9239f7d3e6c5ef5f",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796"};
 // The application shell files that are downloaded before a service worker can
 // start.
