@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
-import 'dart:js_interop';
+import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart' as material;
+
+import 'package:myapp/data/repository/user_data_repository.dart';
+import 'package:myapp/domain/repository/user_repository.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,7 +13,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: ThemeData.light(), home: const HomePage());
+    return material.MaterialApp(
+      theme: material.ThemeData.light(),
+      home: const HomePage(),
+    );
   }
 }
 
@@ -22,67 +28,44 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String userInfo = "Нажми кнопку, чтобы получить данные";
+  final UserRepository _userRepository = UserDataRepository();
+
+  String _info = "Press button to obtain user data";
 
   void showUserData() {
-    // Приводим глобальный объект к нашему типу WebApp
-    final webApp = telegramWebApp as WebApp;
-    final user = webApp.initDataUnsafe.user;
+    final user = _userRepository.getUser();
 
     setState(() {
       if (user != null) {
-        // Обратите внимание: поля теперь доступны как обычные свойства Dart
-        userInfo = "Имя: ${user.firstName} ${user.lastName ?? ''}\nID: ${user.id}";
+        _info =
+            "Name: ${user.firstName} ${user.lastName ?? ''}\nID: ${user.id}";
       } else {
-        userInfo = "Данные не найдены.\nЗапустите в Telegram!";
+        _info = "User data not found.\nRun in telegram!";
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("My Mini App")),
+    return material.Scaffold(
+      appBar: material.AppBar(title: const Text("User Data App")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              userInfo,
+              _info,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            material.ElevatedButton(
               onPressed: showUserData,
-              child: const Text("Показать данные"),
+              child: const Text("Show data"),
             ),
           ],
         ),
       ),
     );
   }
-}
-
-// Указываем Dart, что объект Telegram живет в глобальном окне (window)
-@JS('Telegram.WebApp')
-external JSObject get telegramWebApp;
-
-// Описываем, какие поля мы хотим видеть у WebApp
-extension type WebApp(JSObject _) implements JSObject {
-  external WebAppInitData get initDataUnsafe;
-}
-
-extension type WebAppInitData(JSObject _) implements JSObject {
-  external WebAppUser? get user;
-}
-
-extension type WebAppUser(JSObject _) implements JSObject {
-  external int get id;
-
-  @JS('first_name')
-  external String get firstName;
-
-  @JS('last_name')
-  external String? get lastName;
 }
