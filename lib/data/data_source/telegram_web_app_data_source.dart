@@ -9,12 +9,8 @@ final class TelegramWebAppDataSourceImpl implements TelegramWebAppDataSource {
 
   @override
   TelegramWebAppUser? getUser() {
-    final webApp = telegramWebApp;
-    if (webApp.isA<TelegramWebApp>()) {
-      return (webApp as TelegramWebApp).initDataUnsafe.user;
-    } else {
-      return null;
-    }
+    final webApp = telegramWebApp as TelegramWebApp;
+    return webApp.initDataUnsafe.user;
   }
 }
 
