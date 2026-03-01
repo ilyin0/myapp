@@ -57,6 +57,113 @@ A critical function of the AI is to continuously monitor for and automatically r
   * Ensuring proper asynchronous error handling (e.g., adding try-catch blocks for Future operations, using mounted checks before setState).
 * **Problem Reporting:** If an error cannot be automatically resolved (e.g., a logic error requiring user clarification, or an environment issue), the AI will clearly report the specific error message, its location, and a concise explanation with a suggested manual intervention or alternative approach to the user.
 
+## **Dart & Flutter Best Practices**
+
+This section outlines specific coding standards and patterns that the AI must follow to ensure high-quality, maintainable, and idiomatic Dart and Flutter code.
+
+### **Class and Interface Definitions**
+
+*   **Final Classes:** For classes that are not designed to be inherited (e.g., entities, models, DTOs), always use the `final class` modifier. This enforces immutability and clearly communicates the class's intended use.
+
+    ```dart
+    // Good
+    final class DailyPredict {
+      // ...
+    }
+    ```
+
+*   **Interfaces:** When defining an abstract contract that other classes will implement, always use `abstract interface class`.
+
+    ```dart
+    // Good
+    abstract interface class HoroscopeRepository {
+      Future<DailyPredict> getDailyPredict({required ZodiacSign sign});
+    }
+    ```
+
+### **Class Structure Rules**
+
+#### **Entity Classes**
+For data-holding classes in the domain layer (entities):
+
+1.  **Constructor First:** The constructor(s) must always be placed before the field declarations.
+2.  **`const` Constructor:** Always provide a `const` constructor.
+3.  **Named Parameters:** Always use named parameters (`{required this.field}`) in the constructor for clarity.
+
+    ```dart
+    // Good
+    final class DailyPredict {
+      const DailyPredict({required this.predict}); // Constructor first, const, named param
+
+      final String predict;
+    }
+    ```
+
+#### **Service & Data Classes (Repositories, Data Sources, Use Cases, DTOs)**
+For classes that provide services or handle data transformation:
+
+1.  **`const` Constructor First:** The constructor(s) must be `const` and placed before the field declarations.
+2.  **Private Fields for Dependencies:** Injected dependencies must be stored in `private final` fields (e.g., `final HoroscopeDataSource _dataSource;`).
+3.  **Unnamed (Positional) Parameters for Dependencies:** Always use unnamed (positional) parameters in the constructor for injecting dependencies.
+
+    ```dart
+    // Good: Repository implementation
+    final class HoroscopeDataRepository implements HoroscopeRepository {
+        const HoroscopeDataRepository(this._dataSource); // const constructor, positional param
+        
+        final HoroscopeDataSource _dataSource;
+        //...
+    }
+    ```
+
+4.  **`fromJson` Constructor for DTOs:** Data Transfer Objects (DTOs) in the data layer should use a named constructor like `fromJson` to handle serialization. This constructor is typically not `const` as it depends on runtime data.
+
+    ```dart
+    // Good: DTO in data layer
+    final class DailyPredictDto {
+      // Not const because it's calculated at runtime from JSON
+      DailyPredictDto.fromJson(Map<String, dynamic> json)
+          : predict = json['description'];
+
+      final String predict;
+    }
+    ```
+
+
+### **Architecture and Layering**
+
+*   **Domain Layer Purity:** The `domain` layer must remain pure. It should contain only business logic and entities.
+    *   Domain entities **must not** contain any knowledge of serialization (e.g., no `fromJson` or `toJson` methods). They represent the core business objects, independent of how they are stored or fetched.
+*   **Data Layer Responsibility:** The `data` layer is responsible for all data operations.
+    *   **Data Sources:** These classes handle the raw data fetching (e.g., making HTTP requests to an API).
+    *   **Data Transfer Objects (DTOs):** Create DTOs within the data layer to represent the structure of the data from the external source. These DTOs will contain the `fromJson` logic.
+    *   **Repositories:** The repository implementation in the data layer orchestrates data flow. It calls the data source, receives a DTO, and then maps that DTO to a pure domain entity before returning it to the upper layers (e.g., a use case or the presentation layer).
+
+### **Type Safety**
+
+*   **Use Enums:** For a fixed, known set of values (e.g., zodiac signs, days of the week, status types), always use an `enum` instead of `String` or `int`. This improves type safety, readability, and prevents runtime errors from typos.
+
+    ```dart
+    // Good
+    enum ZodiacSign {
+      aries,
+      taurus,
+      // ...
+    }
+
+    // Method signature using the enum
+    Future<DailyPredict> getDailyPredict({required ZodiacSign sign});
+    ```
+
+### **State Management**
+
+The choice of state management solution depends on the project's scale and complexity. The AI will recommend and use the simplest appropriate tool for the job.
+
+*   **Simple Local State:** For state that is confined to a single widget, the default choice is a `StatefulWidget` using the `setState()` method. This is the most direct and fundamental approach in Flutter.
+
+*   **Complex or Shared State:** When state needs to be shared across multiple widgets or becomes too complex to manage within a single `StatefulWidget`, use the `provider` package with `ChangeNotifier`.
+
+
 ## **Material Design Specifics**
 
 ### **Theming**
