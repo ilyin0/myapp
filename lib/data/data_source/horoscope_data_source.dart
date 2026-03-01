@@ -1,40 +1,40 @@
-import 'dart:convert';
-
 import 'package:myapp/data/dto/daily_predict_dto.dart';
 import 'package:myapp/domain/entity/zodiac_sign.dart';
-import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class HoroscopeDataSource {
   Future<DailyPredictDto> getDailyPredict({required ZodiacSign sign});
 }
 
-/// Uses horoscope-app-api.vercel.app (GET, no API key, CORS-friendly).
-final class HoroscopeRemoteDataSource implements HoroscopeDataSource {
-  static const _baseUrl =
-      'https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily';
+/// Fetches daily predictions from Supabase table [daily_horoskopes].
+/// Returns the latest row by date for the given sign (columns: id, sign, date, prediction).
+final class HoroscopeSupabaseDataSource implements HoroscopeDataSource {
+  static const _tableName = 'daily_horoscopes';
 
-  final http.Client _client;
+  final SupabaseClient _client;
 
-  HoroscopeRemoteDataSource({required http.Client client}) : _client = client;
+  HoroscopeSupabaseDataSource({required SupabaseClient client})
+    : _client = client;
 
   @override
   Future<DailyPredictDto> getDailyPredict({required ZodiacSign sign}) async {
-    final uri = Uri.parse('$_baseUrl?sign=${sign.name}');
-    try {
-      final response = await _client.get(uri);
-      if (response.statusCode != 200) {
-        throw Exception(
-          'Horoscope API error ${response.statusCode}: ${response.body.isNotEmpty ? response.body : "empty response"}',
-        );
-      }
-      final data = json.decode(response.body) as Map<String, dynamic>;
-      final horoscopeText = data['horoscope'] as String?;
-      if (horoscopeText == null || horoscopeText.isEmpty) {
-        throw Exception('Horoscope API returned no text');
-      }
-      return DailyPredictDto.fromJson({'description': horoscopeText});
-    } on http.ClientException catch (e) {
-      throw Exception('Network error: ${e.message}');
+    final response = await _client
+        .from(_tableName)
+        .select()
+        .eq('sign', sign.name)
+        .order('date', ascending: false)
+        .limit(1)
+        .maybeSingle();
+
+    if (response == null) {
+      throw Exception('No daily horoscope found for sign ${sign.name}');
     }
+
+    final prediction = response['prediction'] as String?;
+    if (prediction == null || prediction.isEmpty) {
+      throw Exception('Horoscope row has no prediction text');
+    }
+
+    return DailyPredictDto.fromJson(response);
   }
 }

@@ -1,6 +1,6 @@
 final class DailyPredictDto {
   DailyPredictDto.fromJson(Map<String, dynamic> json)
-      : predict = json['description'];
+      : predict = (json['prediction']) as String;
 
   final String predict;
 }

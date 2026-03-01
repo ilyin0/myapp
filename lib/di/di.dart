@@ -4,15 +4,16 @@ import 'package:myapp/data/repository/horoscope_data_repository.dart';
 import 'package:myapp/data/repository/user_data_repository.dart';
 import 'package:myapp/domain/repository/user_repository.dart';
 import 'package:myapp/domain/use_case/get_daily_predict_use_case.dart';
-import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 late final GetDailyPredictUseCase getDailyPredictUseCase;
 late final UserRepository userRepository;
 
 void initDi() {
-  // Horoscope Feature
-  final httpClient = http.Client();
-  final horoscopeDataSource = HoroscopeRemoteDataSource(client: httpClient);
+  // Horoscope Feature (Supabase: daily_horoskopes, latest by date per sign)
+  final horoscopeDataSource = HoroscopeSupabaseDataSource(
+    client: Supabase.instance.client,
+  );
   final horoscopeRepository = HoroscopeDataRepository(horoscopeDataSource);
   getDailyPredictUseCase = GetDailyPredictUseCase(horoscopeRepository);
 
